@@ -84,13 +84,15 @@ const Step = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: ${({ active }) => (active ? "gray" : "black")};
+  color: ${({ active, theme }) =>
+    active ? theme.colors.blue : theme.colors.gray};
 `;
 const StepCircle = styled.div`
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: ${({ active }) => (active ? "gray" : "black")};
+  background: ${({ active, theme }) =>
+    active ? theme.colors.blue : theme.colors.gray};
   color: white;
   display: flex;
   justify-content: center;
@@ -108,9 +110,10 @@ const ProgressLine = styled.div`
   left: 0;
   height: 0.4rem;
   width: ${({ width }) => width}%;
-  background: black;
+  background: ${({ theme }) => theme.colors.blue};
   transition: width 0.4s ease;
 `;
 const Content = styled.div`
-  margin-top: 10rem;
+  margin: 10rem auto 0;
+  width: 120rem; // ✅ 원하는 가로폭
 `;

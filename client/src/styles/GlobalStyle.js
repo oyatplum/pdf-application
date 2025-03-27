@@ -1,5 +1,37 @@
 import { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import reset from "styled-reset";
+
+export const Section = styled.section`
+  margin-bottom: 4rem;
+`;
+
+export const Button = styled.button`
+  padding: 1rem 2rem;
+  background-color: ${({ theme }) => theme.colors.blue};
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-size: 1.4rem;
+  font-weight: 500;
+`;
+export const Title = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 2.5rem;
+`;
+export const Bar = styled.div`
+  background-color: ${({ theme }) => theme.colors.blue};
+  width: 0.6rem;
+  height: 4rem;
+  margin-right: 1.3rem;
+`;
+export const SemiTitle = styled.div`
+  color: black;
+  font-size: 2rem;
+  font-weight: 500;
+`;
 
 export const GlobalStyle = createGlobalStyle`
 ${reset}

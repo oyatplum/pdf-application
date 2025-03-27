@@ -1,19 +1,18 @@
-import React from "react";
+import { Section, Title, Bar, SemiTitle } from "../styles/GlobalStyle";
 import styled from "styled-components";
 
 export default function ResultView() {
   return (
     <Section>
-      <h2>🧾 추출 결과</h2>
+      <Title>
+        <Bar />
+        <SemiTitle>추출 결과</SemiTitle>
+      </Title>
       <ResultBox></ResultBox>
     </Section>
   );
 }
-const Section = styled.section`
-  margin-bottom: 4rem;
-`;
-
 const ResultBox = styled.pre`
-  background: gray;
+  background: ${({ theme }) => theme.colors.blue};
   padding: 1.5rem;
 `;
