@@ -7,6 +7,7 @@ import FileUpload from "./components/FileUpload";
 import ParseButton from "./components/ParseButton";
 import PdfPreview from "./components/PdfPreview";
 import ResultView from "./components/ResultView ";
+import { Button } from "./styles/GlobalStyle";
 
 const steps = ["파일 업로드", "PDF 미리보기", "신/구조문 파싱", "결과 보기"];
 
@@ -18,18 +19,24 @@ function App() {
   //     .catch((err) => console.error("Error:", err));
   // }, []);
   const [currentStep, setCurrentStep] = useState(0);
+
   const [fileName, setFileName] = useState("");
+  const [file, setFile] = useState(null);
+  const [showPdf, setShowPdf] = useState(false);
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFileName(file.name);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setFileName(selectedFile.name);
       setCurrentStep(1);
+      setShowPdf(false);
     }
   };
 
   const handlePreview = () => {
     setCurrentStep(2);
+    setShowPdf(true);
   };
 
   const handleParse = () => {
@@ -54,7 +61,16 @@ function App() {
             <FileUpload onChange={handleFileChange} fileName={fileName} />
           )}
 
-          {currentStep >= 1 && <PdfPreview onPreview={handlePreview} />}
+          {currentStep >= 1 && (
+            <>
+              <PdfPreview
+                onPreview={handlePreview}
+                file={file}
+                showPdf={showPdf}
+                onClose={() => setShowPdf(false)}
+              />
+            </>
+          )}
 
           {currentStep >= 2 && <ParseButton onParse={handleParse} />}
 
@@ -115,5 +131,5 @@ const ProgressLine = styled.div`
 `;
 const Content = styled.div`
   margin: 10rem auto 0;
-  width: 120rem; // ✅ 원하는 가로폭
+  width: 120rem;
 `;
