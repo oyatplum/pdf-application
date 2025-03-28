@@ -8,6 +8,7 @@ import ParseButton from "./components/ParseButton";
 import PdfPreview from "./components/PdfPreview";
 import ResultView from "./components/ResultView ";
 import { Button } from "./styles/GlobalStyle";
+import { Field } from "pdfjs-dist/build/pdf.worker";
 
 const steps = ["파일 업로드", "PDF 미리보기", "신/구조문 파싱", "결과 보기"];
 
@@ -23,6 +24,7 @@ function App() {
   const [fileName, setFileName] = useState("");
   const [file, setFile] = useState(null);
   const [showPdf, setShowPdf] = useState(false);
+  const [parsedResult, setParsedResult] = useState(null);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -39,7 +41,8 @@ function App() {
     setShowPdf(true);
   };
 
-  const handleParse = () => {
+  const handleParse = (result) => {
+    setParsedResult(result);
     setCurrentStep(3);
   };
 
@@ -72,7 +75,9 @@ function App() {
             </>
           )}
 
-          {currentStep >= 2 && <ParseButton onParse={handleParse} />}
+          {currentStep >= 2 && (
+            <ParseButton file={file} onParse={handleParse} />
+          )}
 
           {currentStep >= 3 && <ResultView />}
         </Content>
