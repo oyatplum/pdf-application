@@ -79,7 +79,7 @@ function App() {
             <ParseButton file={file} onParse={handleParse} />
           )}
 
-          {currentStep >= 3 && <ResultView />}
+          {currentStep >= 3 && <ResultView result={parsedResult} />}
         </Content>
       </ThemeProvider>
     </Wrapper>
@@ -135,6 +135,7 @@ const ProgressLine = styled.div`
   transition: width 0.4s ease;
 `;
 const Content = styled.div`
-  margin: 10rem auto 0;
+  margin: 11rem auto 0;
   width: 120rem;
+  padding-bottom: 3rem;
 `;

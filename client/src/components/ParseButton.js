@@ -21,8 +21,14 @@ export default function ParseButton({ file, onParse }) {
       }
 
       const result = await response.json();
-      console.log("파싱 결과:", result);
-      onParse(result);
+
+      const leftArray = result.map((item) => item.left).flat();
+      const rightArray = result.map((item) => item.right).flat();
+
+      const formattedResult = [leftArray, rightArray];
+
+      console.log("파싱 결과 (처리된 형태):", formattedResult);
+      onParse(formattedResult);
     } catch (error) {
       console.error("PDF 파싱 오류:", error);
     }
