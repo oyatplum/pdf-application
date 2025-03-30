@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import { Section, Title, Bar, SemiTitle, Button } from "../styles/GlobalStyle";
 
 export default function ParseButton({ file, onParse }) {

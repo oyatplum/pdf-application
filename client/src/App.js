@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import GlobalStyle from "./styles/GlobalStyle";
 import { ThemeProvider } from "styled-components";
@@ -7,18 +7,10 @@ import FileUpload from "./components/FileUpload";
 import ParseButton from "./components/ParseButton";
 import PdfPreview from "./components/PdfPreview";
 import ResultView from "./components/ResultView ";
-import { Button } from "./styles/GlobalStyle";
-import { Field } from "pdfjs-dist/build/pdf.worker";
 
 const steps = ["파일 업로드", "PDF 미리보기", "신/구조문 파싱", "결과 보기"];
 
 function App() {
-  // useEffect(() => {
-  //   fetch("/api")
-  //     .then((res) => res.json())
-  //     .then((data) => console.log(data))
-  //     .catch((err) => console.error("Error:", err));
-  // }, []);
   const [currentStep, setCurrentStep] = useState(0);
 
   const [fileName, setFileName] = useState("");
@@ -52,8 +44,8 @@ function App() {
         <GlobalStyle />
         <ProcessBar>
           {steps.map((step, idx) => (
-            <Step key={idx} active={idx <= currentStep}>
-              <StepCircle active={idx <= currentStep}>{idx + 1}</StepCircle>
+            <Step key={idx} $active={idx <= currentStep}>
+              <StepCircle $active={idx <= currentStep}>{idx + 1}</StepCircle>
               <StepName>{step}</StepName>
             </Step>
           ))}
@@ -105,15 +97,15 @@ const Step = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: ${({ active, theme }) =>
-    active ? theme.colors.blue : theme.colors.gray};
+  color: ${({ $active, theme }) =>
+    $active ? theme.colors.blue : theme.colors.gray};
 `;
 const StepCircle = styled.div`
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: ${({ active, theme }) =>
-    active ? theme.colors.blue : theme.colors.gray};
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.blue : theme.colors.gray};
   color: white;
   display: flex;
   justify-content: center;
