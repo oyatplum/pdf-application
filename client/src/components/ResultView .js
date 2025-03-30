@@ -14,8 +14,8 @@ export default function ResultView({ result }) {
 }
 const ResultBox = styled.pre`
   padding: 2rem;
-  color: black;
-  font-size: 1.4rem;
+  color: ${({ theme }) => theme.colors.black};
+  ${({ theme }) => theme.fonts.font1_4};
   line-height: 1.6;
   overflow: auto;
   border-radius: 0.5rem;

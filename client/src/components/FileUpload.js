@@ -1,6 +1,5 @@
-import React from "react";
 import styled from "styled-components";
-import { Section, Title, Bar, SemiTitle, Button } from "../styles/GlobalStyle";
+import { Section, Title, Bar, SemiTitle } from "../styles/GlobalStyle";
 
 export default function FileUpload({ onChange, fileName }) {
   return (
@@ -26,15 +25,15 @@ const HiddenInput = styled.input`
 const Label = styled.label`
   padding: 1rem 2rem;
   background-color: ${({ theme }) => theme.colors.blue};
-  color: white;
+  color: ${({ theme }) => theme.colors.white};
   border-radius: 0.5rem;
   border: none;
   cursor: pointer;
-  font-size: 1.4rem;
+  ${({ theme }) => theme.fonts.font1_4};
   font-weight: 500;
 `;
 
 const FileName = styled.span`
   margin-left: 1.2rem;
-  font-size: 1.4rem;
+  ${({ theme }) => theme.fonts.font1_4};
 `;

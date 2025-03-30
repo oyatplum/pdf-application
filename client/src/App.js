@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 import GlobalStyle from "./styles/GlobalStyle";
 import { ThemeProvider } from "styled-components";
@@ -7,6 +7,7 @@ import FileUpload from "./components/FileUpload";
 import ParseButton from "./components/ParseButton";
 import PdfPreview from "./components/PdfPreview";
 import ResultView from "./components/ResultView ";
+import { flexCenter } from "./styles/GlobalStyle";
 
 const steps = ["파일 업로드", "PDF 미리보기", "신/구조문 파싱", "결과 보기"];
 
@@ -87,11 +88,10 @@ const ProcessBar = styled.div`
   position: fixed;
   top: 0;
   width: 100%;
-  background: white;
+  background: ${({ theme }) => theme.colors.white};
   padding: 1.6rem;
-  display: flex;
+  ${flexCenter};
   justify-content: space-around;
-  align-items: center;
 `;
 const Step = styled.div`
   display: flex;
@@ -101,21 +101,19 @@ const Step = styled.div`
     $active ? theme.colors.blue : theme.colors.gray};
 `;
 const StepCircle = styled.div`
+  ${flexCenter};
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
   background: ${({ $active, theme }) =>
     $active ? theme.colors.blue : theme.colors.gray};
   color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-weight: bold;
   margin-bottom: 1rem;
 `;
 const StepName = styled.div`
-  font-size: 1.2rem;
   font-weight: 600;
+  ${({ theme }) => theme.fonts.font1_2};
 `;
 const ProgressLine = styled.div`
   position: absolute;

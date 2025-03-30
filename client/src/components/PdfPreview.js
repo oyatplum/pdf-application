@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { Section, Title, Bar, SemiTitle, Button } from "../styles/GlobalStyle";
 import * as pdfjsLib from "pdfjs-dist";
 import worker from "pdfjs-dist/build/pdf.worker.entry";
 import styled from "styled-components";
+import { flexCenter } from "../styles/GlobalStyle";
 
 export default function PdfPreview({ onPreview, file, showPdf, onClose }) {
   const canvasRef = useRef();
@@ -11,7 +12,6 @@ export default function PdfPreview({ onPreview, file, showPdf, onClose }) {
   const [pdfRef, setPdfRef] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // 페이지 렌더링
   const renderPage = useCallback(
     (pageNum) => {
       if (!pdfRef) return;
@@ -19,6 +19,7 @@ export default function PdfPreview({ onPreview, file, showPdf, onClose }) {
       pdfRef.getPage(pageNum).then((page) => {
         const viewport = page.getViewport({ scale: 1.2 });
         const canvas = canvasRef.current;
+        if (!canvas) return;
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
@@ -33,14 +34,12 @@ export default function PdfPreview({ onPreview, file, showPdf, onClose }) {
     [pdfRef]
   );
 
-  // 페이지가 바뀔 때마다 렌더링
   useEffect(() => {
     if (pdfRef) {
       renderPage(currentPage);
     }
   }, [pdfRef, currentPage, renderPage]);
 
-  // 파일이 선택되고 showPdf일 때 문서 로드
   useEffect(() => {
     if (file && showPdf) {
       const reader = new FileReader();
@@ -56,7 +55,6 @@ export default function PdfPreview({ onPreview, file, showPdf, onClose }) {
     }
   }, [file, showPdf]);
 
-  //페이지 이동
   const nextPage = () => {
     if (pdfRef && currentPage < pdfRef.numPages) {
       setCurrentPage((prev) => prev + 1);
@@ -98,12 +96,10 @@ const ModalLayout = styled.div`
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  ${flexCenter};
 `;
 const ModalContent = styled.div`
-  background: white;
+  background: ${({ theme }) => theme.colors.white};
   padding: 2rem;
   border-radius: 1rem;
   max-width: 90%;
@@ -116,11 +112,9 @@ const ModalContent = styled.div`
   margin-right: 2rem;
 `;
 const ContentWrapper = styled.div`
-  display: flex;
-  justify-content: center;
+  ${flexCenter};
   gap: 1.2rem;
   margin-bottom: 1rem;
-  align-items: center;
-  color: white;
-  font-size: 2rem;
+  color: ${({ theme }) => theme.colors.white};
+  ${({ theme }) => theme.fonts.font2_0};
 `;

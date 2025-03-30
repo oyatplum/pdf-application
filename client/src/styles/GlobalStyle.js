@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle, css } from "styled-components";
 import styled from "styled-components";
 import reset from "styled-reset";
 
@@ -13,7 +13,7 @@ export const Button = styled.button`
   border-radius: 0.5rem;
   border: none;
   cursor: pointer;
-  font-size: 1.4rem;
+  ${({ theme }) => theme.fonts.font1_4};
   font-weight: 500;
 `;
 export const Title = styled.div`
@@ -29,8 +29,14 @@ export const Bar = styled.div`
 `;
 export const SemiTitle = styled.div`
   color: black;
-  font-size: 2rem;
+  ${({ theme }) => theme.fonts.font2_0};
   font-weight: 500;
+`;
+
+export const flexCenter = css`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const GlobalStyle = createGlobalStyle`

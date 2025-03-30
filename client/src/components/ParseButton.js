@@ -1,4 +1,3 @@
-import React from "react";
 import { Section, Title, Bar, SemiTitle, Button } from "../styles/GlobalStyle";
 
 export default function ParseButton({ file, onParse }) {
@@ -26,7 +25,6 @@ export default function ParseButton({ file, onParse }) {
 
       const formattedResult = [leftArray, rightArray];
 
-      console.log("파싱 결과 (처리된 형태):", formattedResult);
       onParse(formattedResult);
     } catch (error) {
       console.error("PDF 파싱 오류:", error);
