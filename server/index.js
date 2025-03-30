@@ -8,9 +8,31 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
 app.use(express.json());
-
 function splitRightBlocks(texts) {
-  const sorted = [...texts].sort((a, b) => a.page - b.page || b.y - a.y);
+  const mergedTexts = [];
+  for (let i = 0; i < texts.length; i++) {
+    const cur = texts[i];
+    const next = texts[i + 1];
+
+    // 숫자 + 단위 텍스트 병합 (하드코딩 없이 일반화)
+    const isNumberOnly = /^\d+$/.test(cur.text.trim());
+    const isUnitLike =
+      next && /^(회|명|건|일|개|차|이상|이내)/.test(next.text.trim());
+
+    if (isNumberOnly && isUnitLike) {
+      mergedTexts.push({
+        text: cur.text + next.text,
+        x: cur.x,
+        y: cur.y,
+        page: cur.page,
+      });
+      i++; // skip next
+    } else {
+      mergedTexts.push(cur);
+    }
+  }
+
+  const sorted = [...mergedTexts].sort((a, b) => a.page - b.page || b.y - a.y);
   const blocks = [];
   let current = [];
   let mode = null;
@@ -20,7 +42,6 @@ function splitRightBlocks(texts) {
     const text = item.text;
     const isArticleStart = /^제\d+조(\(|의)/.test(text);
     const isNumbered = /^[\u2460-\u2473]|^\d+\./.test(text);
-    const isSubNumber = /^\d+\./.test(text);
 
     if (isArticleStart) {
       if (current.length > 0) blocks.push(current);
@@ -69,17 +90,90 @@ function splitRightBlocks(texts) {
     const page = group[0].page;
     const top = Math.max(...group.map((g) => g.y));
     const bottom = Math.min(...group.map((g) => g.y));
-    return {
-      text: group
-        .map((g) => g.text)
-        .join(" ")
-        .replace(/\s+/g, " ")
-        .trim(),
-      page,
-      top,
-      bottom,
-    };
+
+    const text = group
+      .map((g) => g.text.trim())
+      .join(" ")
+      .replace(/(\d)\s+(회|일|건|명|개|차|이상|이내)/g, "$1$2")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    return { text, page, top, bottom };
   });
+}
+
+function mergeAfterNumberWithPrevious(blocks) {
+  const merged = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const current = blocks[i];
+    const prev = merged[merged.length - 1];
+
+    // 현재 블록이 "4."로 시작하고 이전 블록이 "②"로 시작하면 병합
+    const startsWithSubNumber = /^\d+\./.test(current.text.trim());
+    const prevStartsWithNumber = /^[\u2460-\u2473]/.test(prev?.text?.trim());
+
+    if (startsWithSubNumber && prevStartsWithNumber) {
+      prev.text += " " + current.text;
+      prev.top = Math.max(prev.top, current.top);
+      prev.bottom = Math.min(prev.bottom, current.bottom);
+    } else {
+      merged.push(current);
+    }
+  }
+  return merged;
+}
+
+function mergeSubItemsToMainNumber(blocks) {
+  const merged = [];
+  let i = 0;
+
+  while (i < blocks.length) {
+    const block = blocks[i];
+    const isMainNumber = /^[\u2460-\u2473]/.test(block.text.trim()); // ① ② ③...
+
+    if (isMainNumber) {
+      let combinedText = block.text;
+      let j = i + 1;
+
+      while (j < blocks.length) {
+        const nextText = blocks[j].text.trim();
+
+        // 다음 조문(제14조 등), 항목(⑥ 등)이면 병합 종료
+        const isNextMainStart = /^(제\d+조|\d+항|\d+\)|^[\u2460-\u2473])/.test(
+          nextText
+        );
+        if (isNextMainStart) break;
+
+        // ✅ 숫자만 있는 경우: 뒤에 '회', '이상' 등 설명과 함께 병합
+        const isStandaloneNumber = /^\d+$/.test(nextText);
+        if (isStandaloneNumber && j + 1 < blocks.length) {
+          // 다음 블록이 설명인지 확인
+          const nextNext = blocks[j + 1].text.trim();
+          if (/^(회|이상|받은|경우)/.test(nextNext)) {
+            combinedText += " " + blocks[j].text + " " + blocks[j + 1].text;
+            j += 2;
+            continue;
+          }
+        }
+
+        // 일반 설명 블록이면 그냥 붙이기
+        combinedText += " " + blocks[j].text;
+        j++;
+      }
+
+      merged.push({
+        ...block,
+        text: combinedText.replace(/\s+/g, " ").trim(),
+      });
+
+      i = j;
+    } else {
+      merged.push(block);
+      i++;
+    }
+  }
+
+  return merged;
 }
 
 function matchBlocks(leftBlocks, rightBlocks) {
@@ -153,6 +247,9 @@ app.post("/api/parse-pdf", upload.single("pdf"), async (req, res) => {
 
       for (const item of content.items) {
         const text = item.str.trim();
+        if (text.includes("3회")) {
+          console.log("🔥 3회 발견:", text, item);
+        }
         const x = item.transform[4];
         const y = item.transform[5];
 
@@ -160,10 +257,19 @@ app.post("/api/parse-pdf", upload.single("pdf"), async (req, res) => {
           parsingStarted = true;
           continue;
         }
-        if (!parsingStarted || !text || /^-?\s*\d+\s*-?$/.test(text)) continue;
+        if (!parsingStarted || !text) continue;
+
+        const isLeft = x < 300;
+        const isPageNumber = /^-?\s*\d+\s*-?$/.test(text); // 페이지 번호 패턴
+        const isLikelyPageNumberRight =
+          /^\d+$/.test(text) && x > 200 && x < 400 && y < 100;
+
+        if (isLeft && isPageNumber) continue;
+        if (!isLeft && isLikelyPageNumberRight) continue;
 
         const entry = { text, x, y, page: pageNum };
-        (x < 300 ? leftTexts : rightTexts).push(entry);
+        (isLeft ? leftTexts : rightTexts).push(entry);
+        console.log("entry", entry);
       }
     }
 
@@ -215,7 +321,9 @@ app.post("/api/parse-pdf", upload.single("pdf"), async (req, res) => {
     }
 
     const rightBlockObjects = splitRightBlocks(rightTexts);
-    const matchedBlocks = matchBlocks(blocksWithY, rightBlockObjects);
+    const withMergedSubs = mergeSubItemsToMainNumber(rightBlockObjects);
+    const fullyMerged = mergeAfterNumberWithPrevious(withMergedSubs);
+    const matchedBlocks = matchBlocks(blocksWithY, fullyMerged);
 
     res.json(matchedBlocks);
   } catch (err) {
